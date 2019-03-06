@@ -14,6 +14,7 @@
 <div class="layer1">
     <header>
         <h1>Great to see you again!</h1>
+
     </header>
     <form id="layer2" action="/loginVerify" method="post">
         <div class="input1">
@@ -21,6 +22,7 @@
                 <p id="_id" class="input_label">Username / email</p>
                 <input type="text" id="id" class="input_layout" name="id" onkeyup="check_input_len(this.value, this.id)"
                        onfocusin="focus_in(this.value, this.id)" onfocusout="focus_out(this.id); id_validate();">
+                <div><h5>${errMsg.id}</h5></div>
                 <div id="id_extraInfo" class="extraInfo"></div>
             </div>
         </div>
@@ -30,6 +32,7 @@
                 <input type="password" id="pwd" class="input_layout" name="pwd" onkeyup="check_input_len(this.value, this.id)"
                        onfocusin="focus_in(this.value, this.id); show_checkbox(); pwd_validate_in();"
                        onfocusout="focus_out(this.id); hide_checkbox(); pwd_validate_out();">
+                <div><h5>${errMsg.pwd}</h5></div>
                 <div id="pwd_extraInfo" class="extraInfo">
 
                 </div>
