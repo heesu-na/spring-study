@@ -3,7 +3,9 @@ package com.demo.test.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.servlet.DispatcherServlet;
@@ -33,7 +35,6 @@ public class MvcConfig extends WebMvcConfigurerAdapter implements WebApplication
         registry.addResourceHandler("/resources/**").addResourceLocations("/resources/");
     }
 
-
     @Override
     public void onStartup(ServletContext servletContext) throws ServletException {
         AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
@@ -45,4 +46,8 @@ public class MvcConfig extends WebMvcConfigurerAdapter implements WebApplication
         dispatcher.addMapping("/"); // 호스트서버로 첫 페이지 요청할 때의 경로
     }
 
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        super.addInterceptors(registry);
+//    }
 }

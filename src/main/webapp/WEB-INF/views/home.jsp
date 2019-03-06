@@ -12,26 +12,37 @@
 <body>
 <div class="layer1">
     <header>
-        <h1>Good Afternoon!</h1>
+        <h1>Good Afternoon!
+            <%
+                String id = (String) session.getAttribute("id");
+                if(id != null) {
+            %>
+            <%=id%><%}%>
+        </h1>
     </header>
-    <form id="layer2" action="/login" method="get">
-        <div class="input1">
-            <div class="inputArea">
-            </div>
-        </div>
-        <div class="input2">
-
-        </div>
-
-        <div>
-            <button id="btn" class="submit_btn" type="submit" onmouseover="point_cursor()">iwantLogin
-                <div class="rippleJS"></div>
-            </button>
-        </div>
-    </form>
-
+    <div class="input1">
+        <div class="inputArea"></div>
+    </div>
+    <div class="input2">
+        <% if(id != null) { %>
+            <form id="layer2" action="/logout" method="get">
+                <div>
+                    <button id="btn" class="submit_btn" type="submit" onmouseover="point_cursor()">iwantLogout
+                        <div class="rippleJS"></div>
+                    </button>
+                </div>
+            </form>
+        <% } else { %>
+            <form id="layer2" action="/login" method="get">
+                <div>
+                    <button id="btn" class="submit_btn" type="submit" onmouseover="point_cursor()">iwantLogin
+                        <div class="rippleJS"></div>
+                    </button>
+                </div>
+            </form>
+        <% } %>
+    </div>
 </div>
-
 </body>
 
 </html>

@@ -1,21 +1,21 @@
 package com.demo.test.controller;
 
-
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import java.util.HashMap;
-import java.util.Map;
+import javax.validation.Valid;
+import java.util.List;
 
 @Controller
 @RequestMapping("/")
 public class HomeController {
 
-    @RequestMapping()
+    @RequestMapping(value = "/")
     public String main() {
         return "home";
     }
@@ -27,16 +27,22 @@ public class HomeController {
 
 
     @RequestMapping(value = "/loginVerify", method = RequestMethod.POST)
-    public String viewLoginVerify(@RequestParam String id, @RequestParam String pwd, HttpSession session) {
+    public Object viewLoginVerify(@ModelAttribute() @Valid User user, BindingResult result, HttpSession session, RedirectAttributes redirectAttributes) {
         //model.addAttribute("message", "Hello");
         // TODO : 폼 검증
-        Map<String, Object> db = new HashMap<>();
-        db.put("id", "hee_su");
-        db.put("pwd", "111111");
+        User db = new User();
+        db.setId("hee_su");
+        db.setPwd("111111");
+//        if (result.hasErrors()) {
+//            List<ObjectError> list = result.getAllErrors();
+//            for (ObjectError e : list) {
+//            }
+//        }
 
-        if(db.get("id").equals(id) && db.get("pwd").equals(pwd)) {
-            session.setAttribute("id", id);
-            return "loginSuccess";
+        if(db.getId().equals(user.getId()) && db.getPwd().equals(user.getPwd())){
+            session.setAttribute("id", user.getId());
+            redirectAttributes.addFlashAttribute("id", user.getId());
+            return "redirect:/";
         } else {
             return "redirect:/login";
         }
@@ -44,8 +50,9 @@ public class HomeController {
 
     @RequestMapping(value="/logout")
     public String viewLogout(HttpSession session) {
+        //System.out.println(session.getAttribute("id"));
         session.invalidate();
-        return "loginForm";
+        return "redirect:/";
     }
 
 
