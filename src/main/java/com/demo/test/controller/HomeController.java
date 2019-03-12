@@ -71,50 +71,68 @@ public class HomeController {
     }
 
     @RequestMapping(value="/logout")
-    public String viewLogout(HttpSession session) {
+    public String viewLogout(HttpSession session) throws URISyntaxException {
         //System.out.println(session.getAttribute("id"));
         session.invalidate();
 
+//        RestTemplate restTemplate = new RestTemplate();
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.set("Authorization", "Bearer " + accessToken);
 //        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+//        MultiValueMap<String, String> userAPIParams = new LinkedMultiValueMap<>();
+//        HttpEntity<MultiValueMap<String, String>> userAPIRequest = new HttpEntity<MultiValueMap<String, String>>(userAPIParams, headers);
 //        URI userAPIUri = new URI("https://kapi.kakao.com/v2/user/logout");
+//        restTemplate.postForObject(userAPIUri, userAPIRequest, HashMap.class);
         return "redirect:/";
     }
 
-
-
     @GetMapping(value="/oauth/kakao")
     public String kakaoAccessToken(@RequestParam("code") String code, HttpSession session) throws Exception {
+        Map<String, Object> accessTokenInfo = getAccessToken(code);
+        String accessToken = (String) accessTokenInfo.get("access_token");
+        KakaoUserInfo userInfo = getUserInfo(accessToken);
+        KakaoUserInfo.Properties properties = userInfo.getProperties();
+        KakaoUserInfo.KakaoAccount kakaoAccount = userInfo.getKakaoAccount();
+
+        session.setAttribute("id", properties.getNickname());
+        session.setAttribute("email", kakaoAccount.getEmail());
+        return "redirect:/";
+    }
+
+    private KakaoUserInfo getUserInfo(String accessToken) throws URISyntaxException {
+        RestTemplate restTemplate = new RestTemplate();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer "+accessToken);
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        MultiValueMap<String, String> userAPIParams = new LinkedMultiValueMap<>();
+        HttpEntity<MultiValueMap<String, String>> userAPIRequest = new HttpEntity<MultiValueMap<String, String>>(userAPIParams, headers);
+        URI userAPIUri = new URI("https://kapi.kakao.com/v2/user/me");
+        Map<String, Object> userInfo = restTemplate.postForObject(userAPIUri, userAPIRequest, Map.class);
+        ModelMapper modelMapper = new ModelMapper();
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.LOOSE); // 네이밍 규칙 설정
+        return modelMapper.map(userInfo, KakaoUserInfo.class);
+    }
+
+    private Map<String, Object> getAccessToken(String code) throws URISyntaxException {
         RestTemplate restTemplate = new RestTemplate();
 
-        String url = "https://kauth.kakao.com/oauth/token";
-        MultiValueMap<String, String> urlParams = new LinkedMultiValueMap<>();
-        urlParams.add("grant_type", "authorization_code");
-        urlParams.add("client_id", "88335c81da72b820becceb1966c4c0d9");
-        urlParams.add("redirect_uri", "http://localhost:8080/oauth/kakao");
-        urlParams.add("code", code);
-
-        Map<String, String> accessTokenResponse = restTemplate.postForObject(url, urlParams, Map.class);
-
-        String accessToken = accessTokenResponse.get("access_token");
-
-        restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-        headers.add("Authorization", "Bearer "+accessToken);
-        MultiValueMap<String, String> userInfoParams = new LinkedMultiValueMap<>();
 
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<MultiValueMap<String, String>>(userInfoParams, headers);
-        url= "https://kapi.kakao.com/v2/user/me";
-        //HttpEntity<String> request = new HttpEntity<String>(headers);
-        Map<String, Object> userInfo = restTemplate.postForObject(url, entity, Map.class);
-        Map<String, Object> properties = (Map<String, Object>)userInfo.get("properties");
-        Map<String, Object> kakaoAccount = (Map<String, Object>)userInfo.get("kakao_account");
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+        params.add("grant_type", "authorization_code");
+        params.add("client_id", "88335c81da72b820becceb1966c4c0d9");
+        params.add("redirect_uri", "http://localhost:8080/oauth/kakao");
+        params.add("code", code);
 
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<MultiValueMap<String, String>>(params, headers);
 
-        session.setAttribute("id", properties.get("nickname"));
-        session.setAttribute("email", kakaoAccount.get("email"));
-       return "redirect:/";
+        URI uri = new URI("https://kauth.kakao.com/oauth/token");
+
+        Map<String, Object> response = restTemplate.postForObject(uri, request, HashMap.class);
+
+        return response;
     }
+
 }

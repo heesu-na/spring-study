@@ -1,4 +1,4 @@
-package com.demo.test.controller;
+package com.demo.test.bean;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotEmpty;
