@@ -59,7 +59,13 @@
         </span>
         </div>
         <div>
+            <span>
             Looking for the Mac app? <a href="#">Download here</a>
+            </span>
+            <span>
+                <a href="https://kauth.kakao.com/oauth/authorize?client_id=88335c81da72b820becceb1966c4c0d9&redirect_uri=http://localhost:8080/oauth/kakao&response_type=code">
+                    <img src="/resources/img/kakao_login_btn.png" border="0"/></a>
+            </span>
         </div>
     </footer>
 </div>

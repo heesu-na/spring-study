@@ -17,8 +17,17 @@
                 String id = (String) session.getAttribute("id");
                 if(id != null) {
             %>
-            <%=id%><%}%>
         </h1>
+        <div>
+            <p>
+                <span>ID : </span>
+                ${sessionScope.id}
+            </p>
+            <p>
+                <span>Email : </span>
+                ${sessionScope.email}
+            </p>
+        </div> <%}%>
     </header>
     <div class="input1">
         <div class="inputArea"></div>
