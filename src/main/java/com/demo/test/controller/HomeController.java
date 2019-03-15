@@ -73,33 +73,37 @@ public class HomeController {
     @RequestMapping(value="/logout")
     public String viewLogout(HttpSession session) throws URISyntaxException {
         //System.out.println(session.getAttribute("id"));
+        String accessToken = (String) session.getAttribute("accessToken");
+        if(accessToken != null) {
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.set("Authorization", "Bearer " + accessToken);
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+            MultiValueMap<String, String> userAPIParams = new LinkedMultiValueMap<>();
+            HttpEntity<MultiValueMap<String, String>> userAPIRequest = new HttpEntity<MultiValueMap<String, String>>(userAPIParams, headers);
+            URI userAPIUri = new URI("https://kapi.kakao.com/v1/user/logout");
+            restTemplate.postForObject(userAPIUri, userAPIRequest, HashMap.class);
+        }
         session.invalidate();
-
-//        RestTemplate restTemplate = new RestTemplate();
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("Authorization", "Bearer " + accessToken);
-//        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-//        MultiValueMap<String, String> userAPIParams = new LinkedMultiValueMap<>();
-//        HttpEntity<MultiValueMap<String, String>> userAPIRequest = new HttpEntity<MultiValueMap<String, String>>(userAPIParams, headers);
-//        URI userAPIUri = new URI("https://kapi.kakao.com/v2/user/logout");
-//        restTemplate.postForObject(userAPIUri, userAPIRequest, HashMap.class);
         return "redirect:/";
     }
 
     @GetMapping(value="/oauth/kakao")
-    public String kakaoAccessToken(@RequestParam("code") String code, HttpSession session) throws Exception {
+    public static String kakaoAccessToken(@RequestParam("code") String code, HttpSession session) throws Exception {
         Map<String, Object> accessTokenInfo = getAccessToken(code);
-        String accessToken = (String) accessTokenInfo.get("access_token");
+         String accessToken = (String) accessTokenInfo.get("access_token");
         KakaoUserInfo userInfo = getUserInfo(accessToken);
         KakaoUserInfo.Properties properties = userInfo.getProperties();
         KakaoUserInfo.KakaoAccount kakaoAccount = userInfo.getKakaoAccount();
+        System.out.println(accessToken);
 
         session.setAttribute("id", properties.getNickname());
         session.setAttribute("email", kakaoAccount.getEmail());
+        session.setAttribute("accessToken", accessToken);
         return "redirect:/";
     }
 
-    private KakaoUserInfo getUserInfo(String accessToken) throws URISyntaxException {
+    private static KakaoUserInfo getUserInfo(String accessToken) throws URISyntaxException {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer "+accessToken);
@@ -114,7 +118,7 @@ public class HomeController {
         return modelMapper.map(userInfo, KakaoUserInfo.class);
     }
 
-    private Map<String, Object> getAccessToken(String code) throws URISyntaxException {
+    private static Map<String, Object> getAccessToken(String code) throws URISyntaxException {
         RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
